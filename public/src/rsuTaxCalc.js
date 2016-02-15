@@ -11,7 +11,7 @@ RSUTaxCalculator = (function() {
 
 	/*
 	   stockSymbol: (String) AAPL, EBAY, NOB, etc`...
-       startDate: (String) 1/29/2013
+       startDate: (String) 2013/01/31
        endDate: ditto
        callback: (function)
 	*/
@@ -44,43 +44,9 @@ RSUTaxCalculator = (function() {
                 callback(err);
             })
         })
-        
-		// var response = UrlFetchApp.fetch(urlGoog, {muteHttpExceptions: true});
-		
-		// try {
-		// 	var json = JSON.parse(response);
-		// 	data = json.dataset_data.data;
-		// }
-		// catch (e) {
-        //     // Try with the Qundl's WIKI database
-		// 	var response = UrlFetchApp.fetch(urlWIKI, {muteHttpExceptions: true});
-		
-		// 	try {
-        //         var json = JSON.parse(response);
-        //         data = json.dataset_data.data;
-		// 	}
-		// 	catch (e) {
-    	// 		data = response;
-		// 	}
-		// }
-			
-		// return data;
-	}
 
-	
-	
-	function getStockPrice(ticker) {
-		
 	}
-	
-	function numberOfDaysFromGrant(grantDate, today) {
-		
-	}
-	
-	function eligiblefor102(){
-		
-	}
-    
+   
     /*
         ticker: (String)
         grantDate: (Date)
@@ -97,13 +63,14 @@ RSUTaxCalculator = (function() {
         var lastWeek = new Date(today.getTime() - millisec7Days);
         var daysFromGrant = Math.floor((today.getTime() - grantDate.getTime())/millisecOneDay);
         var eligibleFor102 = daysFromGrant > 365*2;  
-        var personalTaxRate = marginalTaxRate + nationalInsuranceTax;
+        var personalTaxRate = parseFloat(marginalTaxRate) + parseFloat(nationalInsuranceTax);
         var daysUntileligibleFor102 = (grantDate.getTime() + daysForEligibility * millisecOneDay - today.getTime()) / millisecOneDay;
          
 
+// validity check: 
+// today grant date is less than today
         
         // get todays stock price
-        
         getQuandlFinanceData(ticker, lastWeek, today, function(err, result){
             if (err){
                 callback(err);
@@ -135,10 +102,12 @@ RSUTaxCalculator = (function() {
                 var taxWithout102 = lastPrice * personalTaxRate;
                 var gainWithout102 = lastPrice - taxWithout102;
                 
+                // add gainWith102 even if not eligible yet
+                
                 var equilibriumCalculation = {};
                 if (daysUntileligibleFor102 > 0) {
                     equilibriumCalculation.gainOnCostBasis = costBasis * (1 - personalTaxRate);
-                    equilibriumCalculation.futureEquilibriumPrice = (gainWithout102 - gainOnCostBasis)/(1 - capitalTax) + costBasis;
+                    equilibriumCalculation.futureEquilibriumPrice = (gainWithout102 - equilibriumCalculation.gainOnCostBasis)/(1 - capitalTax) + costBasis;
                 }
                 
                 callback(null, {
