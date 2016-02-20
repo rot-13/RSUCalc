@@ -101,6 +101,7 @@ RSUTaxCalculator = (function() {
                 
                 var taxWithout102 = lastPrice * personalTaxRate;
                 var gainWithout102 = lastPrice - taxWithout102;
+                var gainWith102 = lastPrice - costBasis * personalTaxRate - (lastPrice - costBasis) * capitalTax;
                 
                 // add gainWith102 even if not eligible yet
                 
@@ -123,6 +124,7 @@ RSUTaxCalculator = (function() {
                     capitalTax : capitalTax,
                     totalTax : totalTax, 
                     totalGain : totalGain,
+                    gainWith102 : gainWith102,
                     taxWithout102 : taxWithout102,
                     gainWithout102 : gainWithout102,
                     equilibriumCalculation : equilibriumCalculation

@@ -46,16 +46,16 @@ var CalculatorForm = React.createClass({
       grantDate: this.refs.grantDate.value(),
       incomeTax: this.refs.incomeTax.value(),
       capitalGainsTax: this.props.data.capitalGainsTax,
-      numberOfStock: this.refs.numStocks.value(),
+      numberOfShares: this.refs.numShares.value(),
     }
     var rsu = new RSUTaxCalculator;
-    rsu.getGrantInfo(data.ticker, data.grantDate, data.incomeTax, this.props.onSubmit);
-    // function(error, result){
-    //     console.log("Returned");
-    //     console.log("Error: ", error); 
-    //     console.log("Result: ", result);
-    // });
-        // this.props.onSubmit(calculate(data));
+    var resultSubmit = this.props.onSubmit;
+    rsu.getGrantInfo(data.ticker, data.grantDate, data.incomeTax, function(error, result){
+        if (result) {
+            result.numberOfShares = data.numberOfShares;
+        }
+        resultSubmit(error, result);
+    });
   },
   render: function() {
     return (
@@ -63,7 +63,7 @@ var CalculatorForm = React.createClass({
         <FieldClass ref="ticker" field="ticker" label="Ticker" placeholder="AAPL" value={this.props.data.ticker} />
         <FieldClass ref="grantDate" field="grant-date" label="Grant Date" placeholder="2015/03/15" value={this.props.data.grantDate} />
         <FieldClass ref="incomeTax" field="income-tax" label="Your Income Tax Rate" placeholder="30%" value={this.props.data.incomeTax}/>
-        <FieldClass ref="numStocks" field="number-of-stock" label="Number of Stock (optional)" placeholder="100" value={this.props.data.numberOfStock}/>
+        <FieldClass ref="numShares" field="number-of-shares" label="Number of Shares (optional)" placeholder="100" value={this.props.data.numberOfStock}/>
         <button type="submit" className="btn btn-default">Run</button>
       </form>
     );
@@ -73,25 +73,24 @@ var CalculatorForm = React.createClass({
 
 var Result = React.createClass({
   render: function() {
-    if (this.props.results) {
-      var total = this.props.results.soldForTotal.formatMoney(2, '.', ',');
-      var capitalGainsTaxTotal = this.props.results.capitalGainsTaxTotal.formatMoney(2, '.', ',');
-      var incomeTaxTotal = this.props.results.incomeTaxTotal.formatMoney(2, '.', ',');
-      var net = this.props.results.net.formatMoney(2, '.', ',');
+    if (this.props.result) {
+        var res = this.props.result;
+        var shareValue = res.lastPrice.formatMoney(2, '.', ','); 
+        var gainPerShare = res.totalGain.formatMoney(2, '.', ',');
+        var totalGain = res.numberOfShares * res.totalGain;
+        var gainPerShareWith102 = res.gainWith102.formatMoney(2, '.', ',');
       var good = (
         <div className="alert alert-success">
 <dl>
-<dt> Sold for Total </dt>
-<dd> ${ total } </dd>
-<dt> Income Tax </dt>
-<dd> ${ incomeTaxTotal } </dd>
-<dt> Capital Gains </dt>
-<dd> ${ capitalGainsTaxTotal } </dd>
-<hr/>
-<dt> Net Gains </dt>
-<dd> ${ net } </dd>
+<dt> Current share value  </dt>
+<dd> ${ shareValue } </dd>
+<dt> Gain per share </dt>
+<dd> ${ gainPerShare } </dd>
+<dt> Total gain </dt>
+<dd> ${ totalGain.formatMoney(2, '.', ',') } </dd>
+<dt> Gain per share (assuming tax law 102 in effect) </dt>
+<dd> ${ gainPerShareWith102 } </dd>
 </dl>
-
         </div>
       );
       return good;
@@ -103,19 +102,19 @@ var Result = React.createClass({
 
 var CalculatorContainer = React.createClass({
   getInitialState: function() {
-    return {results: null};
+    return {result: null};
   },
   onSubmit: function(error, result) {
     console.log("Returned");
     console.log("Error: ", error); 
     console.log("Result: ", result);
-    // this.setState({results: results});
+    this.setState({result: result});
   },
   render: function() {
     return (
       <div>
         <CalculatorForm data={this.props.data} onSubmit={this.onSubmit} />
-        <Result results={this.state.results} />
+        <Result result={this.state.result} numberOfShares={4}/>
       </div>
     )
   }
@@ -133,5 +132,5 @@ window.debug = InitialData;
 
 React.render(
   <CalculatorContainer data={ InitialData } />,
-  document.getElementById('example')
+  document.getElementById('rsuForm')
 );
