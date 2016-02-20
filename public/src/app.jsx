@@ -1,14 +1,3 @@
-Number.prototype.formatMoney = function(c, d, t){
-var n = this,
-    c = isNaN(c = Math.abs(c)) ? 2 : c,
-    d = d == undefined ? "." : d,
-    t = t == undefined ? "," : t,
-    s = n < 0 ? "-" : "",
-    i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "",
-    j = (j = i.length) > 3 ? j % 3 : 0;
-   return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
- };
-
 var FieldClass = React.createClass({
   getInitialState: function() {
     return {value: this.props.value};
@@ -32,6 +21,7 @@ var FieldClass = React.createClass({
     return (
       <fieldset className="form-group">
         <label htmlFor={this.props.field} >{this.props.label}</label>
+        <span> ({this.props.engLabel})</span>
         {input}
       </fieldset>
     );
@@ -60,11 +50,11 @@ var CalculatorForm = React.createClass({
   render: function() {
     return (
       <form className="calc-form" onSubmit={this.handleSubmit}>
-        <FieldClass ref="ticker" field="ticker" label="Ticker" placeholder="AAPL" value={this.props.data.ticker} />
-        <FieldClass ref="grantDate" field="grant-date" label="Grant Date" placeholder="2015/03/15" value={this.props.data.grantDate} />
-        <FieldClass ref="incomeTax" field="income-tax" label="Your Income Tax Rate" placeholder="30%" value={this.props.data.incomeTax}/>
-        <FieldClass ref="numShares" field="number-of-shares" label="Number of Shares (optional)" placeholder="100" value={this.props.data.numberOfStock}/>
-        <button type="submit" className="btn btn-default">Run</button>
+        <FieldClass ref="ticker" field="ticker" engLabel="ticker" label="מניה" placeholder="AAPL" value={this.props.data.ticker} />
+        <FieldClass ref="grantDate" field="grant-date" engLabel="grant date" label="תאריך הענקת המניות" placeholder="2015/03/15" value={this.props.data.grantDate} />
+        <FieldClass ref="incomeTax" field="income-tax" engLabel="personal income tax rate" label="מס שולי" placeholder="30%" value={this.props.data.incomeTax}/>
+        <FieldClass ref="numShares" field="number-of-shares" engLabel="number of shares for sale" label="מספר מניות למכירה" placeholder="100" value={this.props.data.numberOfStock}/>
+        <button type="submit" className="btn btn-default">חשב הכנסה ממכירה</button>
       </form>
     );
   }
@@ -74,28 +64,73 @@ var CalculatorForm = React.createClass({
 var Result = React.createClass({
   render: function() {
     if (this.props.result) {
+        if (this.props.result.eligibleFor102) {
+            return (<EligibleFor102Result result={this.props.result}/>);
+        } else {
+            return (<NonEligibleFor102Result result={this.props.result}/>);
+        }
+    } else {
+      return (<span/>);
+    }
+  }
+});
+
+var NonEligibleFor102Result = React.createClass({
+  render: function() {
+    if (this.props.result) {
         var res = this.props.result;
         var shareValue = res.lastPrice.formatMoney(2, '.', ','); 
-        var gainPerShare = res.totalGain.formatMoney(2, '.', ',');
+        // var gainPerShare = res.totalGain.formatMoney(2, '.', ',');
         var totalGain = res.numberOfShares * res.totalGain;
+        totalGain = totalGain.formatMoney(2, '.', ',');
         var gainPerShareWith102 = res.gainWith102.formatMoney(2, '.', ',');
+        var totalGainWith102 = res.numberOfShares * gainPerShareWith102;
+        totalGainWith102 = totalGainWith102.formatMoney(2, '.', ',');
+        
       var good = (
-        <div className="alert alert-success">
-<dl>
-<dt> Current share value  </dt>
-<dd> ${ shareValue } </dd>
-<dt> Gain per share </dt>
-<dd> ${ gainPerShare } </dd>
-<dt> Total gain </dt>
-<dd> ${ totalGain.formatMoney(2, '.', ',') } </dd>
-<dt> Gain per share (assuming tax law 102 in effect) </dt>
-<dd> ${ gainPerShareWith102 } </dd>
-</dl>
-        </div>
+          <div>
+          <div className="alert alert-warning" role="alert">אינך זכאית עדיין להטבת מס 102. הזכאות תתקיים בעוד {this.props.result.daysUntileligibleFor102} ימים.</div>
+          <div className="panel panel-default">
+            <div className="panel-heading">מחיר למניה היום</div>
+            <div className="panel-body">${shareValue}</div>
+            <div className="panel-heading">הכנסה ממכירה (ללא הטבת מס 102)</div>
+            <div className="panel-body">${totalGain}</div>
+            <div className="panel-heading">הכנסה ממכירה אילו היית זכאית להטבת מס 102</div>
+            <div className="panel-body">${totalGainWith102}</div>
+          </div>
+          </div>
       );
       return good;
     } else {
-      return (<span/>);
+      return (<span>שגיאה, נסי שנית מאוחר יותר</span>);
+    }
+  }
+});
+
+
+var EligibleFor102Result = React.createClass({
+  render: function() {
+    if (this.props.result) {
+        var res = this.props.result;
+        var shareValue = res.lastPrice.formatMoney(2, '.', ','); 
+        // var gainPerShare = res.totalGain.formatMoney(2, '.', ',');
+        var totalGain = res.numberOfShares * res.totalGain;
+        totalGain = totalGain.formatMoney(2, '.', ',');
+        
+      var good = (
+          <div>
+          <div className="alert alert-success" role="alert">זכאית להטבת מס 102</div>
+          <div className="panel panel-default">
+            <div className="panel-heading">מחיר למניה היום</div>
+            <div className="panel-body">${shareValue}</div>
+            <div className="panel-heading">הכנסה ממכירה</div>
+            <div className="panel-body">${totalGain}</div>
+          </div>
+          </div>
+      );
+      return good;
+    } else {
+      return (<span>שגיאה, נסי שנית מאוחר יותר</span>);
     }
   }
 });
@@ -120,8 +155,6 @@ var CalculatorContainer = React.createClass({
   }
 })
 
-
-
 var InitialData = {
   ticker: "AAPL",
   grantDate: "2014/03/15",
@@ -134,3 +167,19 @@ React.render(
   <CalculatorContainer data={ InitialData } />,
   document.getElementById('rsuForm')
 );
+
+/*************/
+/* Utilities */
+/*************/
+
+// Taken from http://stackoverflow.com/a/149099/280503
+Number.prototype.formatMoney = function(c, d, t){
+var n = this,
+    c = isNaN(c = Math.abs(c)) ? 2 : c,
+    d = d == undefined ? "." : d,
+    t = t == undefined ? "," : t,
+    s = n < 0 ? "-" : "",
+    i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "",
+    j = (j = i.length) > 3 ? j % 3 : 0;
+   return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+ };

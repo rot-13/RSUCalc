@@ -64,7 +64,7 @@ RSUTaxCalculator = (function() {
         var daysFromGrant = Math.floor((today.getTime() - grantDate.getTime())/millisecOneDay);
         var eligibleFor102 = daysFromGrant > 365*2;  
         var personalTaxRate = parseFloat(marginalTaxRate) + parseFloat(nationalInsuranceTax);
-        var daysUntileligibleFor102 = (grantDate.getTime() + daysForEligibility * millisecOneDay - today.getTime()) / millisecOneDay;
+        var daysUntileligibleFor102 = Math.ceil((grantDate.getTime() + daysForEligibility * millisecOneDay - today.getTime()) / millisecOneDay);
          
 
 // validity check: 
