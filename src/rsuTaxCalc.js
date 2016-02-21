@@ -22,10 +22,12 @@ RSUTaxCalculator = (function() {
 		
 		var startDateString = "" + start.getFullYear() + "-" + (start.getMonth() + 1) + "-" + start.getDate();
 		var endDateString = "" + end.getFullYear() + "-" + (end.getMonth() + 1) + "-" + end.getDate();
+        
 		
+        // TODO allow GOOG retreivals from other stock markets, not just NASDAQ. for instance, Visa (V) is not on NASDAQ 
 		var datasetGoogURLPrefix = "https://www.quandl.com/api/v3/datasets/GOOG/NASDAQ_";
 		var datasetWIKIURLPrefix = "https://www.quandl.com/api/v3/datasets/WIKI/";
-		var urlPath =  stockSymbol + "/data.json?column_index=4&start_date=" + startDateString + "&end_date=" + endDateString + "&order=asc";
+		var urlPath =  stockSymbol + "/data.json?column_index=4&start_date=" + startDateString + "&end_date=" + endDateString + "&order=desc";
 		
 		var urlGoog = datasetGoogURLPrefix + urlPath;
 		var urlWIKI = datasetWIKIURLPrefix + urlPath;
@@ -85,11 +87,16 @@ RSUTaxCalculator = (function() {
                     return;
                 }
                 var sum = 0;
-                // asuming at least 31 days of stock prices
-                for (var i = result.length - 2; i > result.length - 2 - 29; i--){
+                for (var i = 0 ; i < result.length && i <= 30; i++){
                     sum += result[i][1];
-                } 
-                var costBasis = sum/30;
+                }
+                var costBasis;
+                if (result.length < 30) {
+                    // TODO not enough data to compute cost basis
+                } else {
+                    costBasis = sum/30;
+                    
+                }
                 
                 var partEligibleFor102 = lastPrice - costBasis;
                 var partOfSaleForIncomeTax = lastPrice > costBasis && eligibleFor102 ? costBasis : lastPrice;
