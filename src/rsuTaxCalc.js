@@ -71,7 +71,50 @@ RSUTaxCalculator = (function() {
 
 // validity check: 
 // today grant date is less than today
+    
+        function getStockPriceForDate(ticker, lastWeek, today) {
+            return new Promise(function (resolve, reject) {
+                getQuandlFinanceData(ticker, lastWeek, today, function(err, result){
+                    if (err){
+                        reject(err);
+                        return;
+                    }
+                    var lastPrice = result[result.length - 1][1];
+                    resolve(lastPrice);
+                });            
+                
+            });
+        }
         
+        function getCostBasisForGrantDate(ticker, date45DyasBeforeGrant, grantDate){
+            return new Promise(function (resolve, reject) {
+                getQuandlFinanceData(ticker, date45DyasBeforeGrant, grantDate, function(err, result){
+                    if (err){
+                        reject(err);
+                        return;
+                    }
+                    var sum = 0;
+                    for (var i = 0 ; i < result.length && i <= 30; i++){
+                        sum += result[i][1];
+                    }
+                    var costBasis;
+                    if (result.length < 30) {
+                        // TODO not enough data to compute cost basis
+                    } else {
+                        costBasis = sum/30;
+                    }
+                    
+                    resolve(costBasis);
+                });
+            });
+        }
+
+        var promiseStockPrice = getStockPriceForDate(ticker, lastWeek, today);
+        var promiseCostBasis = getCostBasisForGrantDate(ticker, date45DyasBeforeGrant, grantDate);
+        var promises = [promiseStockPrice, promiseCostBasis];
+        
+        Promise.all(promises).then(function (values) { console.log("p", values); });
+                
         // get todays stock price
         getQuandlFinanceData(ticker, lastWeek, today, function(err, result){
             if (err){
