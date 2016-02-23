@@ -1,14 +1,11 @@
 RSUTaxCalculator = (function() {
 	function RSUTaxCalculator() {};
 	 
+    // Constants
 	var daysForEligibility = 365 * 2;
 	var nationalInsuranceTax = 0.12;
 	var capitalGainTax = 0.25;
 	
-	var ticker;
-	var grantDate;
-	var marginalIncomeTax;
-
 	/*
 	   stockSymbol: (String) AAPL, EBAY, NOB, etc`...
        startDate: (String) 2013/01/31
@@ -56,6 +53,7 @@ RSUTaxCalculator = (function() {
         callback: (function)
     */
 	RSUTaxCalculator.prototype.getGrantInfo = function(ticker, grantDate, marginalTaxRate, callback) {
+        // add validity check? grant date is less than today
         var grantDate = new Date(grantDate);
         var millisecOneDay = 24*60*60*1000;
         var millisec45Days = 45*millisecOneDay; 
@@ -69,9 +67,6 @@ RSUTaxCalculator = (function() {
         var daysUntileligibleFor102 = Math.ceil((grantDate.getTime() + daysForEligibility * millisecOneDay - today.getTime()) / millisecOneDay);
          
 
-// validity check: 
-// today grant date is less than today
-    
         function getStockPriceForDate(ticker, lastWeek, today) {
             return new Promise(function (resolve, reject) {
                 getQuandlFinanceData(ticker, lastWeek, today, function(err, result){
@@ -90,7 +85,7 @@ RSUTaxCalculator = (function() {
             return new Promise(function (resolve, reject) {
                 getQuandlFinanceData(ticker, date45DyasBeforeGrant, grantDate, function(err, result){
                     if (err){
-                        reject(err);
+                        reject(new Error("Quandle error: " + err));
                         return;
                     }
                     var sum = 0;
@@ -99,7 +94,7 @@ RSUTaxCalculator = (function() {
                     }
                     var costBasis;
                     if (result.length < 30) {
-                        // TODO not enough data to compute cost basis
+                        reject(new Error("Not enough data to compute cost basis. Last data point is from " + result[result.length][0]));
                     } else {
                         costBasis = sum/30;
                     }
@@ -113,75 +108,54 @@ RSUTaxCalculator = (function() {
         var promiseCostBasis = getCostBasisForGrantDate(ticker, date45DyasBeforeGrant, grantDate);
         var promises = [promiseStockPrice, promiseCostBasis];
         
-        Promise.all(promises).then(function (values) { console.log("p", values); });
-                
-        // get todays stock price
-        getQuandlFinanceData(ticker, lastWeek, today, function(err, result){
-            if (err){
-                callback(err);
-                return;
-            }
-            var lastPrice = result[result.length - 1][1];
+        Promise.all(promises).then(function (values) {
+            var lastPrice = values[0];
+            var costBasis = values[1];
             
-            // get average of 30 trading days
-            getQuandlFinanceData(ticker, date45DyasBeforeGrant, grantDate, function(err, result){
-                if (err){
-                    callback(err);
-                    return;
-                }
-                var sum = 0;
-                for (var i = 0 ; i < result.length && i <= 30; i++){
-                    sum += result[i][1];
-                }
-                var costBasis;
-                if (result.length < 30) {
-                    // TODO not enough data to compute cost basis
-                } else {
-                    costBasis = sum/30;
-                    
-                }
-                
-                var partEligibleFor102 = lastPrice - costBasis;
-                var partOfSaleForIncomeTax = lastPrice > costBasis && eligibleFor102 ? costBasis : lastPrice;
-                var partOfSaleForCapitalTax = lastPrice - partOfSaleForIncomeTax;
-                var regularTax = partOfSaleForIncomeTax * personalTaxRate;
-                var capitalTax = partOfSaleForCapitalTax * capitalGainTax;
-                var totalTax = regularTax + capitalTax;
-                var totalGain = lastPrice - totalTax; 
-                
-                var taxWithout102 = lastPrice * personalTaxRate;
-                var gainWithout102 = lastPrice - taxWithout102;
-                var gainWith102 = lastPrice - costBasis * personalTaxRate - (lastPrice - costBasis) * capitalTax;
-                
-                // add gainWith102 even if not eligible yet
-                
-                var equilibriumCalculation = {};
-                if (daysUntileligibleFor102 > 0) {
-                    equilibriumCalculation.gainOnCostBasis = costBasis * (1 - personalTaxRate);
-                    equilibriumCalculation.futureEquilibriumPrice = (gainWithout102 - equilibriumCalculation.gainOnCostBasis)/(1 - capitalTax) + costBasis;
-                }
-                
-                callback(null, {
-                    daysFromGrant : daysFromGrant,
-                    eligibleFor102 : eligibleFor102,
-                    daysUntileligibleFor102 : daysUntileligibleFor102,
-                    lastPrice : lastPrice,
-                    costBasis : costBasis,
-                    partEligibleFor102 : partEligibleFor102,
-                    partOfSaleForIncomeTax : partOfSaleForIncomeTax,
-                    partOfSaleForCapitalTax : partOfSaleForCapitalTax,
-                    regularTax : regularTax,
-                    capitalTax : capitalTax,
-                    totalTax : totalTax, 
-                    totalGain : totalGain,
-                    gainWith102 : gainWith102,
-                    taxWithout102 : taxWithout102,
-                    gainWithout102 : gainWithout102,
-                    equilibriumCalculation : equilibriumCalculation
-                })
+            var partEligibleFor102 = lastPrice - costBasis;
+            var partOfSaleForIncomeTax = lastPrice > costBasis && eligibleFor102 ? costBasis : lastPrice;
+            var partOfSaleForCapitalTax = lastPrice - partOfSaleForIncomeTax;
+            var regularTax = partOfSaleForIncomeTax * personalTaxRate;
+            var capitalTax = partOfSaleForCapitalTax * capitalGainTax;
+            var totalTax = regularTax + capitalTax;
+            var totalGain = lastPrice - totalTax; 
+            
+            var taxWithout102 = lastPrice * personalTaxRate;
+            var gainWithout102 = lastPrice - taxWithout102;
+            var gainWith102 = lastPrice - costBasis * personalTaxRate - (lastPrice - costBasis) * capitalTax;
+            
+            // add gainWith102 even if not eligible yet
+            
+            var equilibriumCalculation = {};
+            if (daysUntileligibleFor102 > 0) {
+                equilibriumCalculation.gainOnCostBasis = costBasis * (1 - personalTaxRate);
+                equilibriumCalculation.futureEquilibriumPrice = (gainWithout102 - equilibriumCalculation.gainOnCostBasis)/(1 - capitalTax) + costBasis;
+            }
+            
+            callback(null, {
+                daysFromGrant : daysFromGrant,
+                eligibleFor102 : eligibleFor102,
+                daysUntileligibleFor102 : daysUntileligibleFor102,
+                lastPrice : lastPrice,
+                costBasis : costBasis,
+                partEligibleFor102 : partEligibleFor102,
+                partOfSaleForIncomeTax : partOfSaleForIncomeTax,
+                partOfSaleForCapitalTax : partOfSaleForCapitalTax,
+                regularTax : regularTax,
+                capitalTax : capitalTax,
+                totalTax : totalTax, 
+                totalGain : totalGain,
+                gainWith102 : gainWith102,
+                taxWithout102 : taxWithout102,
+                gainWithout102 : gainWithout102,
+                equilibriumCalculation : equilibriumCalculation
             });
+             
+        }, function(error){
+            callback(error)
         });
-        
+                
+        return;        
     };
 	
 	return RSUTaxCalculator;
