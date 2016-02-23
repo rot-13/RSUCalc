@@ -5,7 +5,26 @@ RSUTaxCalculator = (function() {
 	var daysForEligibility = 365 * 2;
 	var nationalInsuranceTax = 0.12;
 	var capitalGainTax = 0.25;
-	
+    
+    // Stock exceptions
+    var stockExceptions = new Array;
+    stockExceptions.push({
+        type: "split",
+        action: ["adjust"],
+        date: new Date("2015/07/20"),
+        ticker: "ebay",
+        relativeMultiplyer: 0.4259768491 
+    });
+    	
+    stockExceptions.push({
+        type: "split",
+        action: ["adjust", "rename"],
+        date: new Date("2015/07/20"),
+        ticker: "pypl",
+        splitFrom: "ebay",
+        relativeMultiplyer: 0.5740231509
+    });
+   
 	/*
 	   stockSymbol: (String) AAPL, EBAY, NOB, etc`...
        startDate: (String) 2013/01/31
@@ -31,15 +50,12 @@ RSUTaxCalculator = (function() {
 		
         fetchival(urlGoog).get().then(function(json) {
             data = json.dataset_data.data;
-            console.log(json);
             callback(null, data);
         }).catch(function(err) {
             fetchival(urlWIKI).get().then(function(json) {
                 data = json.dataset_data.data;
-                console.log(json);
                 callback(null, data);
             }).catch(function(err) {
-                console.log(err)
                 callback(err);
             })
         })
@@ -65,53 +81,29 @@ RSUTaxCalculator = (function() {
         var eligibleFor102 = daysFromGrant > 365*2;  
         var personalTaxRate = parseFloat(marginalTaxRate) + parseFloat(nationalInsuranceTax);
         var daysUntileligibleFor102 = Math.ceil((grantDate.getTime() + daysForEligibility * millisecOneDay - today.getTime()) / millisecOneDay);
-         
 
-        function getStockPriceForDate(ticker, lastWeek, today) {
-            return new Promise(function (resolve, reject) {
-                getQuandlFinanceData(ticker, lastWeek, today, function(err, result){
-                    if (err){
-                        reject(err);
-                        return;
-                    }
-                    var lastPrice = result[result.length - 1][1];
-                    resolve(lastPrice);
-                });            
-                
-            });
-        }
-        
-        function getCostBasisForGrantDate(ticker, date45DyasBeforeGrant, grantDate){
-            return new Promise(function (resolve, reject) {
-                getQuandlFinanceData(ticker, date45DyasBeforeGrant, grantDate, function(err, result){
-                    if (err){
-                        reject(new Error("Quandle error: " + err));
-                        return;
-                    }
-                    var sum = 0;
-                    for (var i = 0 ; i < result.length && i <= 30; i++){
-                        sum += result[i][1];
-                    }
-                    var costBasis;
-                    if (result.length < 30) {
-                        reject(new Error("Not enough data to compute cost basis. Last data point is from " + result[result.length][0]));
-                    } else {
-                        costBasis = sum/30;
-                    }
-                    
-                    resolve(costBasis);
-                });
-            });
-        }
-
-        var promiseStockPrice = getStockPriceForDate(ticker, lastWeek, today);
+                 
         var promiseCostBasis = getCostBasisForGrantDate(ticker, date45DyasBeforeGrant, grantDate);
+        var promiseStockPrice = getStockPriceForDate(ticker, lastWeek, today);
         var promises = [promiseStockPrice, promiseCostBasis];
         
         Promise.all(promises).then(function (values) {
             var lastPrice = values[0];
             var costBasis = values[1];
-            
+            computeGain(lastPrice, costBasis);             
+        }, function(error){
+            callback(error)
+        });
+
+        function computeGain(lastPrice, costBasis) {
+            // special case for exceptions (ebay, pypl)
+            for (var i = 0 ; i < stockExceptions.length; i++){
+                if ((stockExceptions[i].ticker == ticker) && (today.getTime() > stockExceptions[i].date.getTime())) {
+                    costBasis = costBasis * stockExceptions[i].relativeMultiplyer;
+                    break;            
+                }
+            }
+
             var partEligibleFor102 = lastPrice - costBasis;
             var partOfSaleForIncomeTax = lastPrice > costBasis && eligibleFor102 ? costBasis : lastPrice;
             var partOfSaleForCapitalTax = lastPrice - partOfSaleForIncomeTax;
@@ -122,9 +114,9 @@ RSUTaxCalculator = (function() {
             
             var taxWithout102 = lastPrice * personalTaxRate;
             var gainWithout102 = lastPrice - taxWithout102;
-            var gainWith102 = lastPrice - costBasis * personalTaxRate - (lastPrice - costBasis) * capitalTax;
             
-            // add gainWith102 even if not eligible yet
+            var taxWith102 = costBasis * personalTaxRate + partEligibleFor102 * capitalGainTax;
+            var gainWith102 = lastPrice - taxWith102;
             
             var equilibriumCalculation = {};
             if (daysUntileligibleFor102 > 0) {
@@ -149,11 +141,54 @@ RSUTaxCalculator = (function() {
                 taxWithout102 : taxWithout102,
                 gainWithout102 : gainWithout102,
                 equilibriumCalculation : equilibriumCalculation
+            });            
+        }
+            
+        function getStockPriceForDate(ticker, lastWeek, today) {
+            return new Promise(function (resolve, reject) {
+                getQuandlFinanceData(ticker, lastWeek, today, function(err, result){
+                    if (err){
+                        reject(err);
+                        return;
+                    }
+                    var lastPrice = result[0][1];
+                    resolve(lastPrice);
+                });            
+                
             });
-             
-        }, function(error){
-            callback(error)
-        });
+        }
+        
+        function getCostBasisForGrantDate(ticker, date45DyasBeforeGrant, grantDate){            
+            return new Promise(function (resolve, reject) {
+                // special case for exceptions (pypl)
+                for (var i = 0 ; i < stockExceptions.length; i++){
+                    if (stockExceptions[i].ticker == ticker && stockExceptions[i].splitFrom) {
+                        ticker = stockExceptions[i].splitFrom;
+                        break;            
+                    }
+                }
+
+                getQuandlFinanceData(ticker, date45DyasBeforeGrant, grantDate, function(err, result){
+                    if (err){
+                        reject(new Error("Quandle error: " + err));
+                        return;
+                    }
+                    var sum = 0;
+                    for (var i = 0 ; i < result.length && i < 30; i++){
+                        sum += result[i][1];
+                    }
+                    var costBasis;
+                    if (result.length < 30) {
+                        reject(new Error("Not enough data to compute cost basis. Last data point is from " + result[result.length][0]));
+                    } else {
+                        costBasis = sum/30;
+                    }
+                    
+                    resolve(costBasis);
+                });
+            });
+        }
+
                 
         return;        
     };

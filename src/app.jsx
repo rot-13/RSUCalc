@@ -140,6 +140,11 @@ var CalculatorContainer = React.createClass({
     return {result: null};
   },
   onSubmit: function(error, result) {
+    if (error) {
+        // TODO print error to user
+        console.log(error);
+    }
+    console.log("result", result);
     this.setState({result: result});
   },
   render: function() {
