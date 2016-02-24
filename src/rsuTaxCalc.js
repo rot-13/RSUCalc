@@ -63,19 +63,29 @@ RSUTaxCalculator = (function() {
 	}
    
     /*
-        ticker: (String)
-        grantDate: (Date)
-        marginalTaxRate: (int)
+        data: {
+            ticker: (String)
+            grantDate: (String - for Date)
+            marginalTaxRate: (int)
+            saleDate: (String - for Date)
+        }
         callback: (function)
+            
     */
-	RSUTaxCalculator.prototype.getGrantInfo = function(ticker, grantDate, marginalTaxRate, callback) {
+	RSUTaxCalculator.prototype.getGrantInfo = function(data, callback) {
+        var ticker = data.ticker;
+        var grantDate = data.grantDate;
+        var marginalTaxRate = data.marginalTaxRate;
+        var saleDate = data.saleDate;
+        
         // add validity check? grant date is less than today
-        var grantDate = new Date(grantDate);
+        grantDate = new Date(grantDate);
+        saleDate = new Date(saleDate);
         var millisecOneDay = 24*60*60*1000;
         var millisec45Days = 45*millisecOneDay; 
         var millisec7Days = 7*millisecOneDay;
         var date45DyasBeforeGrant = new Date(grantDate.getTime() - millisec45Days);
-        var today = new Date();
+        var today = saleDate;
         var lastWeek = new Date(today.getTime() - millisec7Days);
         var daysFromGrant = Math.floor((today.getTime() - grantDate.getTime())/millisecOneDay);
         var eligibleFor102 = daysFromGrant > 365*2;  

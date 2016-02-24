@@ -31,16 +31,17 @@ var FieldClass = React.createClass({
 var CalculatorForm = React.createClass({
   handleSubmit: function(ev) {
     ev.preventDefault();
+    var saleDate = this.refs.saleDate.value() == "Today" ? new Date() : this.refs.saleDate.value();
     var data = {
       ticker: this.refs.ticker.value(),
       grantDate: this.refs.grantDate.value(),
-      incomeTax: this.refs.incomeTax.value(),
-      capitalGainsTax: this.props.data.capitalGainsTax,
+      marginalTaxRate: this.refs.incomeTax.value(),
+      saleDate: saleDate,
       numberOfShares: this.refs.numShares.value(),
     }
     var rsu = new RSUTaxCalculator;
     var resultSubmit = this.props.onSubmit;
-    rsu.getGrantInfo(data.ticker, data.grantDate, data.incomeTax, function(error, result){
+    rsu.getGrantInfo(data, function(error, result){
         if (result) {
             result.numberOfShares = data.numberOfShares;
         }
@@ -54,6 +55,7 @@ var CalculatorForm = React.createClass({
         <FieldClass ref="grantDate" field="grant-date" engLabel="grant date" label="תאריך הענקת המניות" placeholder="2015/03/15" value={this.props.data.grantDate} />
         <FieldClass ref="incomeTax" field="income-tax" engLabel="personal income tax rate" label="מס שולי" placeholder="30%" value={this.props.data.incomeTax}/>
         <FieldClass ref="numShares" field="number-of-shares" engLabel="number of shares for sale" label="מספר מניות למכירה" placeholder="100" value={this.props.data.numberOfStock}/>
+        <FieldClass ref="saleDate" field="sale-date" engLabel="sale date" label="תאריך מכירה" placeholder="100" value={this.props.data.saleDate}/>
         <button type="submit" className="btn btn-default">חשב הכנסה ממכירה</button>
       </form>
     );
@@ -158,10 +160,11 @@ var CalculatorContainer = React.createClass({
 })
 
 var InitialData = {
-  ticker: "AAPL",
-  grantDate: "2014/03/15",
-  incomeTax: 0.30,
-  numberOfStock: 1
+  ticker: "ebay",
+  grantDate: "2013/03/15",
+  incomeTax: 0.3,
+  numberOfStock: 1,
+  saleDate: "Today"
 };
 window.debug = InitialData;
 
