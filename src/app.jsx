@@ -9,7 +9,27 @@ var FieldClass = React.createClass({
     return this.state.value;
   },
   render: function() {
-    var input = ( <input ref="input" className="form-control" id={this.props.field} placeholder={this.props.placeholder} value={this.state.value} onChange={this.handleChange} /> );
+    var input;
+    if (this.props.mandatory) {
+    var inputStyle = {
+      width: "calc(100% - 14px)",
+      display: "inline"
+    };
+    input = ( 
+      <div>
+      <span className="glyphicon glyphicon-asterisk text-danger" aria-hidden="true"/>
+      <input style={inputStyle} ref="input" className="form-control" id={this.props.field}  placeholder={this.props.placeholder} value={this.state.value} onChange={this.handleChange} />
+      </div> 
+      );
+      
+    } else {
+    input = ( 
+      <div>
+      <input ref="input" className="form-control" id={this.props.field}  placeholder={this.props.placeholder} value={this.state.value} onChange={this.handleChange} />
+      </div> 
+      );
+    }
+
     // if (this.props.prefix) {
     //   input = (
     //     <div className="input-group">
@@ -51,11 +71,13 @@ var CalculatorForm = React.createClass({
   render: function() {
     return (
       <form className="calc-form" onSubmit={this.handleSubmit}>
-        <FieldClass ref="ticker" field="ticker" engLabel="ticker" label="מניה" placeholder="AAPL" value={this.props.data.ticker} />
-        <FieldClass ref="grantDate" field="grant-date" engLabel="grant date" label="תאריך הענקת המניות" placeholder="2015/03/15" value={this.props.data.grantDate} />
-        <FieldClass ref="incomeTax" field="income-tax" engLabel="personal income tax rate" label="מס שולי" placeholder="30%" value={this.props.data.incomeTax}/>
+        <FieldClass mandatory="true" ref="ticker" field="ticker" engLabel="ticker" label="מניה" placeholder="AAPL" value={this.props.data.ticker} />
+        <FieldClass mandatory="true" ref="grantDate" field="grant-date" engLabel="grant date" label="תאריך הענקת המניות" placeholder="2015/03/15" value={this.props.data.grantDate} />
+        <FieldClass mandatory="true" ref="incomeTax" field="income-tax" engLabel="personal income tax rate" label="מס שולי" placeholder="30%" value={this.props.data.incomeTax}/>
         <FieldClass ref="numShares" field="number-of-shares" engLabel="number of shares for sale" label="מספר מניות למכירה" placeholder="100" value={this.props.data.numberOfStock}/>
         <FieldClass ref="saleDate" field="sale-date" engLabel="sale date" label="תאריך מכירה" placeholder="100" value={this.props.data.saleDate}/>
+        <span className="glyphicon glyphicon-asterisk text-danger" aria-hidden="true"/> שדות חובה
+        <br/>
         <button type="submit" className="btn btn-default">חשב הכנסה ממכירה</button>
       </form>
     );
