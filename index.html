@@ -23,21 +23,36 @@
     <script type="text/babel" src="src/app.jsx"></script>
     
     <!-- PayPal Button start -->
+    <!--  style="margin:0 auto;width:300px" -->
     <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="margin:0 auto;width:300px">
-      <input type="hidden" name="cmd" value="_s-xclick">
-      <table>
-        <tr><td><input type="hidden" name="on0" value="&#1514;&#1502;&#1497;&#1499;&#1492; &#1489;&#1502;&#1495;&#1513;&#1489;&#1493;&#1503;">תרומה לתחזוקת המחשבון</td></tr><tr><td><select name="os0">
-          <option value="&#1492;&#1506;&#1512;&#1499;&#1492;">&#1492;&#1506;&#1512;&#1499;&#1492; ₪5.00 ILS</option>
-          <option value="&#1514;&#1493;&#1491;&#1492;">&#1514;&#1493;&#1491;&#1492; ₪10.00 ILS</option>
-          <option value="&#1514;&#1493;&#1491;&#1492; &#1512;&#1489;&#1492;">&#1514;&#1493;&#1491;&#1492; &#1512;&#1489;&#1492; ₪20.00 ILS</option>
-          <option value="&#1495;&#1505;&#1499;&#1514;&#1497; &#1492;&#1512;&#1489;&#1492; &#1499;&#1505;&#1507;, &#1514;&#1493;&#1491;&#1492;!">&#1495;&#1505;&#1499;&#1514;&#1497; &#1492;&#1512;&#1489;&#1492; &#1499;&#1505;&#1507;, &#1514;&#1493;&#1491;&#1492;! ₪50.00 ILS</option>
-        </select> </td></tr>
-      </table>
-      <input type="hidden" name="currency_code" value="ILS">
-      <input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
-      ">
-      <input type="image" src="https://www.paypalobjects.com/he_IL/IL/i/btn/btn_paynowCC_LG.gif" border="0" name="submit" alt="PayPal - הדרך הקלה והבטוחה לשלם באינטרנט!">
-      <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+    <input type="hidden" name="cmd" value="_xclick">
+    <input type="hidden" name="business" value="7WFHFT7ZS6KUS">
+    <input type="hidden" name="lc" value="IL">
+    <input type="hidden" name="item_name" value="RSU Calculator support">
+    <input type="hidden" name="item_number" value="RSU calc">
+    <input type="hidden" name="button_subtype" value="services">
+    <input type="hidden" name="currency_code" value="ILS">
+    <input type="hidden" name="bn" value="PP-BuyNowBF:btn_buynowCC_LG.gif:NonHosted">
+    <table>
+    <tr><td><input type="hidden" name="on0" value="&#1514;&#1512;&#1493;&#1502;&#1492; &#1500;&#1502;&#1495;&#1513;&#1489;&#1493;&#1503; RSU">&#1514;&#1512;&#1493;&#1502;&#1492; &#1500;&#1502;&#1495;&#1513;&#1489;&#1493;&#1503; RSU</td></tr><tr><td><select name="os0">
+      <option value="&#1514;&#1493;&#1491;&#1492;">&#1514;&#1493;&#1491;&#1492; ₪5.00 ILS</option>
+      <option value="&#1514;&#1493;&#1491;&#1492; &#1512;&#1489;&#1492;">&#1514;&#1493;&#1491;&#1492; &#1512;&#1489;&#1492; ₪10.00 ILS</option>
+      <option value="&#1514;&#1493;&#1491;&#1492;, &#1514;&#1493;&#1491;&#1492;, &#1514;&#1493;&#1491;&#1492;!">&#1514;&#1493;&#1491;&#1492;, &#1514;&#1493;&#1491;&#1492;, &#1514;&#1493;&#1491;&#1492;! ₪20.00 ILS</option>
+      <option value="&#1495;&#1505;&#1499;&#1514; &#1500;&#1497; &#1492;&#1512;&#1489;&#1492; &#1499;&#1505;&#1507;, &#1514;&#1493;&#1491;&#1492;!">&#1495;&#1505;&#1499;&#1514; &#1500;&#1497; &#1492;&#1512;&#1489;&#1492; &#1499;&#1505;&#1507;, &#1514;&#1493;&#1491;&#1492;! ₪50.00 ILS</option>
+    </select> </td></tr>
+    </table>
+    <input type="hidden" name="currency_code" value="ILS">
+    <input type="hidden" name="option_select0" value="&#1514;&#1493;&#1491;&#1492;">
+    <input type="hidden" name="option_amount0" value="5.00">
+    <input type="hidden" name="option_select1" value="&#1514;&#1493;&#1491;&#1492; &#1512;&#1489;&#1492;">
+    <input type="hidden" name="option_amount1" value="10.00">
+    <input type="hidden" name="option_select2" value="&#1514;&#1493;&#1491;&#1492;, &#1514;&#1493;&#1491;&#1492;, &#1514;&#1493;&#1491;&#1492;!">
+    <input type="hidden" name="option_amount2" value="20.00">
+    <input type="hidden" name="option_select3" value="&#1495;&#1505;&#1499;&#1514; &#1500;&#1497; &#1492;&#1512;&#1489;&#1492; &#1499;&#1505;&#1507;, &#1514;&#1493;&#1491;&#1492;!">
+    <input type="hidden" name="option_amount3" value="50.00">
+    <input type="hidden" name="option_index" value="0">
+    <input type="image" src="https://www.paypalobjects.com/he_IL/IL/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - הדרך הקלה והבטוחה לשלם באינטרנט!">
+    <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
     </form>
     <!-- PayPal Button end -->
 
