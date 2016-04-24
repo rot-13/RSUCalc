@@ -10,7 +10,14 @@
     <script src="src/promiscuous-browser.js"></script>
     <script src="src/rsuTaxCalc.js"></script>
     <style>
-      body {direction: rtl;}
+      body {
+        direction: rtl;
+      }
+      .footer {
+        margin-top: 10px;
+        padding: 10px 10px 10px 10px;
+        background-color: #E6E6E6;
+      }
     </style>
   </head>
   <body>
@@ -21,6 +28,13 @@
       </div>
       <div class="alert alert-danger" role="alert">מחשבון זה הוא תיאורטי, ומיועד למטרות בחינה בלבד, ואין לראות בו המלצה למכירה או השקעה. מומלץ לקבל ייעוץ מרואת חשבון מוסמכת כדי לקבל נתונים מדוייקים</div>
       <div id="rsuForm"></div>
+
+      <div class="footer">
+        <span>נבנה על ידי בני וינגרטן-גבאי</span>
+        <span dir=ltr><a href="https://twitter.com/gardenofwine" target="_blank">@gardenofwine</a><span>
+        <br/>
+        <span dir=rtl> האתר נכתב כולו בקוד פתוח אשר זמין ב<a href="https://github.com/rot-13/RSUCalc"> GitHub</a></span>
+      </div>    
     </div>
     <script type="text/babel" src="src/app.jsx"></script>
   </body>
