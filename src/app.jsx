@@ -48,7 +48,22 @@ var FieldClass = React.createClass({
   }
 });
 
+var SubmitButton = React.createClass({
+  render: function() {
+    if (this.props.waitingForServer) {
+      var spinner = <i className="fa fa-spinner fa-spin"></i>;
+    }
+    return (
+      <button type="submit" className="btn btn-default" disabled={this.props.waitingForServer}><span>חשב הכנסה ממכירה </span>{spinner}</button>
+    )    
+    
+  }
+});
+
 var CalculatorForm = React.createClass({
+  getInitialState: function() {
+    return {waitingForServer: false};
+  },
   handleSubmit: function(ev) {
     ev.preventDefault();
     var saleDate = this.refs.saleDate.value() == "Today" ? new Date() : this.refs.saleDate.value();
@@ -61,12 +76,15 @@ var CalculatorForm = React.createClass({
     }
     var rsu = new RSUTaxCalculator;
     var resultSubmit = this.props.onSubmit;
+    var that = this;
     rsu.getGrantInfo(data, function(error, result){
+        that.setState({waitingForServer: false});
         if (result) {
             result.numberOfShares = data.numberOfShares;
         }
         resultSubmit(error, result);
     });
+    this.setState({waitingForServer: true}); 
   },
   render: function() {
     return (
@@ -78,7 +96,8 @@ var CalculatorForm = React.createClass({
         <FieldClass ref="saleDate" field="sale-date" engLabel="sale date" label="תאריך מכירה" placeholder="100" value={this.props.data.saleDate}/>
         <span className="glyphicon glyphicon-asterisk text-danger" aria-hidden="true"/> שדות חובה
         <br/>
-        <button type="submit" className="btn btn-default">חשב הכנסה ממכירה</button>
+        <br/>
+        <SubmitButton waitingForServer={this.state.waitingForServer}/>
       </form>
     );
   }
@@ -181,17 +200,17 @@ var CalculatorContainer = React.createClass({
   }
 })
 
-var InitialData = {
+var initialData = {
   ticker: "ebay",
   grantDate: "2013/03/15",
   incomeTax: 0.3,
   numberOfStock: 1,
   saleDate: "Today"
 };
-window.debug = InitialData;
+window.debug = initialData;
 
 React.render(
-  <CalculatorContainer data={ InitialData } />,
+  <CalculatorContainer data={ initialData } />,
   document.getElementById('rsuForm')
 );
 
