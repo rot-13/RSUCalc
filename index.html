@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>מחשבון RSU - סעיף 102</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
@@ -19,11 +20,20 @@
         padding: 10px 10px 10px 10px;
         background-color: #E6E6E6;
       }
+      #title {
+        background-image: url(images/calculating.jpg);
+        background-repeat: no-repeat;
+        background-color: #8E8E8E;
+        background-position-y: 55%;
+        background-position-x: center;
+        color: #EEEEEE;
+        text-shadow: black 0.1em 0.1em 0.2em;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="jumbotron text-center">
+      <div class="jumbotron text-center" id="title">
         <h1>מחשבון הכנסה ממכירת RSU</h1>
         <p> אם מקום העבודה שלכם מעניק לכם ״יחידות מניה חסומות״ (RSU) דרך נאמן, תוכלו להשתמש במחשבון זה על מנת לדעת כמה כסף תקבלו (אחרי מסים, בהתחשבות בתקנה 102 ) אם תמכרו את המניות היום.</p>
       </div>
