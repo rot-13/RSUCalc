@@ -4,6 +4,9 @@ var FieldClass = React.createClass({
   },
   handleChange: function(event) {
     this.setState({value: event.target.value});
+    if (this.props.onChange) {
+      this.props.onChange(event.target.value);
+    }
   },
   value: function() {
     return this.state.value;
@@ -86,13 +89,17 @@ var CalculatorForm = React.createClass({
     });
     this.setState({waitingForServer: true}); 
   },
+  onNumberOfSharesChange: function(newNumber) {
+    console.log(newNumber);
+    this.props.updateNumberOfShares(newNumber);
+  },
   render: function() {
     return (
       <form className="calc-form" onSubmit={this.handleSubmit}>
         <FieldClass mandatory="true" ref="ticker" field="ticker" engLabel="ticker" label="מניה" placeholder="AAPL" value={this.props.data.ticker} />
         <FieldClass mandatory="true" ref="grantDate" field="grant-date" engLabel="grant date" label="תאריך הענקת המניות" placeholder="2015/03/15" value={this.props.data.grantDate} />
         <FieldClass mandatory="true" ref="incomeTax" field="income-tax" engLabel="personal income tax rate" label="מס שולי" placeholder="30%" value={this.props.data.incomeTax}/>
-        <FieldClass ref="numShares" field="number-of-shares" engLabel="number of shares for sale" label="מספר מניות למכירה" placeholder="100" value={this.props.data.numberOfStock}/>
+        <FieldClass ref="numShares" field="number-of-shares" onChange={this.onNumberOfSharesChange} engLabel="number of shares for sale" label="מספר מניות למכירה" placeholder="100" value={this.props.data.numberOfStock}/>
         <FieldClass ref="saleDate" field="sale-date" engLabel="sale date" label="תאריך מכירה" placeholder="100" value={this.props.data.saleDate}/>
         <span className="glyphicon glyphicon-asterisk text-danger" aria-hidden="true"/> שדות חובה
         <br/>
@@ -157,7 +164,7 @@ var EligibleFor102Result = React.createClass({
         var res = this.props.result;
         var shareValue = res.lastPrice.formatMoney(2, '.', ','); 
         // var gainPerShare = res.totalGain.formatMoney(2, '.', ',');
-        var totalGain = res.numberOfShares * res.totalGain;
+        var totalGain = res.totalGain * res.numberOfShares;
         totalGain = totalGain.formatMoney(2, '.', ',');
         
       var good = (
@@ -182,19 +189,25 @@ var CalculatorContainer = React.createClass({
   getInitialState: function() {
     return {result: null};
   },
-  onSubmit: function(error, result) {
+  onFormSubmit: function(error, result) {
     if (error) {
         // TODO print error to user
         console.log(error);
     }
-    console.log("result", result);
+    console.log("New result from RSU form", result);
     this.setState({result: result});
+  },
+  onUpdateNumberOfShares: function(numberOfShares) {
+    if (this.state.result) {
+      this.state.result.numberOfShares = numberOfShares;
+      this.setState(this.state);
+    }
   },
   render: function() {
     return (
       <div>
-        <CalculatorForm data={this.props.data} onSubmit={this.onSubmit} />
-        <Result result={this.state.result} numberOfShares={4}/>
+        <CalculatorForm data={this.props.data} onSubmit={this.onFormSubmit} updateNumberOfShares={this.onUpdateNumberOfShares}/>
+        <Result result={this.state.result}/>
       </div>
     )
   }
