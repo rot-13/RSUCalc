@@ -90,7 +90,6 @@ var CalculatorForm = React.createClass({
     this.setState({waitingForServer: true}); 
   },
   onNumberOfSharesChange: function(newNumber) {
-    console.log(newNumber);
     this.props.updateNumberOfShares(newNumber);
   },
   render: function() {
