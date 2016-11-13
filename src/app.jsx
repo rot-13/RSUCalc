@@ -184,6 +184,12 @@ var EligibleFor102Result = React.createClass({
   }
 });
 
+var CalculationExplanation = React.createClass({
+  render: function() {
+    
+  }  
+})
+
 var CalculatorContainer = React.createClass({
   getInitialState: function() {
     return {result: null};
@@ -198,8 +204,7 @@ var CalculatorContainer = React.createClass({
   },
   onUpdateNumberOfShares: function(numberOfShares) {
     if (this.state.result) {
-      this.state.result.numberOfShares = numberOfShares;
-      this.setState(this.state);
+      this.setState({numberOfShares: numberOfShares});
     }
   },
   render: function() {
@@ -213,7 +218,7 @@ var CalculatorContainer = React.createClass({
 })
 
 var initialData = {
-  ticker: "ebay",
+  ticker: "pypl",
   grantDate: "2013/03/15",
   incomeTax: 0.3,
   numberOfStock: 1,
