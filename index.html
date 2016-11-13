@@ -2,23 +2,54 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>מחשבון RSU - סעיף 102</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <script src="src/fetchtival.min.js"></script>
     <script src="src/promiscuous-browser.js"></script>
     <script src="src/rsuTaxCalc.js"></script>
     <style>
-      body {direction: rtl;}
+      body {
+        direction: rtl;
+      }
+      .footer {
+        margin-top: 10px;
+        padding: 10px 10px 10px 10px;
+        background-color: #E6E6E6;
+      }
+      #title {
+        background-image: url(images/calculating.jpg);
+        background-repeat: no-repeat;
+        background-color: #8E8E8E;
+        background-position-y: 55%;
+        background-position-x: center;
+        background-size: cover;
+        color: #EEEEEE;
+        text-shadow: black 0.1em 0.1em 0.2em;
+      }
+      .calc-form {
+        margin-bottom : 2em;
+      }
     </style>
   </head>
   <body>
-    <div class="jumbotron text-center">
-      <h1>מחשבון הכנסה ממכירת RSU</h1>
-    </div>
     <div class="container">
+      <div class="jumbotron text-center" id="title">
+        <h1>מחשבון הכנסה ממכירת RSU</h1>
+        <p> אם מקום העבודה שלכם מעניק לכם ״יחידות מניה חסומות״ (RSU) דרך נאמן, תוכלו להשתמש במחשבון זה על מנת לדעת כמה כסף תקבלו (אחרי מסים, בהתחשבות בתקנה 102 ) אם תמכרו את המניות היום.</p>
+      </div>
+      <div class="alert alert-danger" role="alert">מחשבון זה הוא תיאורטי, ומיועד למטרות בחינה בלבד, ואין לראות בו המלצה למכירה או השקעה. מומלץ לקבל ייעוץ מרואת חשבון מוסמכת כדי לקבל נתונים מדוייקים</div>
       <div id="rsuForm"></div>
+
+      <div class="footer">
+        <span>נבנה על ידי בני וינגרטן-גבאי</span>
+        <span dir=ltr><a href="https://twitter.com/gardenofwine" target="_blank">@gardenofwine</a><span>
+        <br/>
+        <span dir=rtl> האתר נכתב כולו בקוד פתוח אשר זמין ב<a href="https://github.com/rot-13/RSUCalc"> GitHub</a>. אני עושה שימוש ב Google Analytics אך ורק כדי לעקוב אחר מספר המשתמשים באתר. המידע האישי מהאתר אינו נקרא על ידי, הפרטיות של המשתמשים באתר מוגנת.</span>
+      </div>    
     </div>
     <script type="text/babel" src="src/app.jsx"></script>
     
@@ -57,4 +88,13 @@
     <!-- PayPal Button end -->
 
   </body>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-59959780-2', 'auto');
+    ga('send', 'pageview');
+  </script>
 </html>
