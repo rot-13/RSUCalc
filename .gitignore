@@ -1,6 +1,9 @@
 CNAME
 .powder
+.DS_Store
 .vscode/**
+node_modules
+npm-debug.log
 
 # For powder
 public
