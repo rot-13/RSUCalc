@@ -9,8 +9,9 @@ const config = {
     context: src,
     entry: './js/index.js',
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        path: path.resolve(__dirname, 'build'),
+        filename: 'bundle.js',
+        publicPath: '/RSUCalc/'
     },
     module: {
         rules: [
@@ -22,9 +23,6 @@ const config = {
                         loader: 'babel-loader'
                     }
                 ]
-            },
-            {
-
             }
         ]
     },
@@ -44,7 +42,7 @@ const config = {
         openPage: '',
         contentBase: src
     },
-    devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map'
+    devtool: process.env.NODE_ENV === 'production' ? undefined : 'eval-source-map'
 }
 
 module.exports = config;

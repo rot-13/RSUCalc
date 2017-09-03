@@ -4,6 +4,7 @@ CNAME
 .vscode/**
 node_modules
 npm-debug.log
+build
 
 # For powder
 public
