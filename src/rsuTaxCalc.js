@@ -67,10 +67,9 @@ RSUTaxCalculator = (function() {
             ticker: (String)
             grantDate: (String - for Date)
             marginalTaxRate: (int)
-            saleDate: (String - for Date)
+            saleDate: Date
         }
         callback: (function)
-            
     */
 	RSUTaxCalculator.prototype.getGrantInfo = function(data, callback) {
         var ticker = data.ticker;
@@ -80,11 +79,10 @@ RSUTaxCalculator = (function() {
         
         // add validity check? grant date is less than today
         grantDate = new Date(grantDate);
-        saleDate = new Date(saleDate);
         var millisecOneDay = 24*60*60*1000;
         var millisec45Days = 45*millisecOneDay; 
         var millisec7Days = 7*millisecOneDay;
-        var date45DyasBeforeGrant = new Date(grantDate.getTime() - millisec45Days);
+        var date45DaysBeforeGrant = new Date(grantDate.getTime() - millisec45Days);
         var today = saleDate;
         var lastWeek = new Date(today.getTime() - millisec7Days);
         var daysFromGrant = Math.floor((today.getTime() - grantDate.getTime())/millisecOneDay);
@@ -93,7 +91,7 @@ RSUTaxCalculator = (function() {
         var daysUntileligibleFor102 = Math.ceil((grantDate.getTime() + daysForEligibility * millisecOneDay - today.getTime()) / millisecOneDay);
 
                  
-        var promiseCostBasis = getCostBasisForGrantDate(ticker, date45DyasBeforeGrant, grantDate);
+        var promiseCostBasis = getCostBasisForGrantDate(ticker, date45DaysBeforeGrant, grantDate);
         var promiseStockPrice = getStockPriceForDate(ticker, lastWeek, today);
         var promises = [promiseStockPrice, promiseCostBasis];
         
@@ -170,7 +168,7 @@ RSUTaxCalculator = (function() {
         
         function getCostBasisForGrantDate(ticker, date45DyasBeforeGrant, grantDate){            
             return new Promise(function (resolve, reject) {
-                // special case for exceptions (pypl)
+                // special case for exceptions (pypl, ebay (before split))
                 for (var i = 0 ; i < stockExceptions.length; i++){
                     if (stockExceptions[i].ticker == ticker && stockExceptions[i].splitFrom) {
                         ticker = stockExceptions[i].splitFrom;

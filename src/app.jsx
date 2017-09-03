@@ -11,37 +11,31 @@ var FieldClass = React.createClass({
   value: function() {
     return this.state.value;
   },
+  getInputElement: function() {
+    return this.refs.input;
+  },
   render: function() {
     var input;
     if (this.props.mandatory) {
-    var inputStyle = {
-      width: "calc(100% - 14px)",
-      display: "inline"
-    };
-    input = (
-      <div>
-      <span className="glyphicon glyphicon-asterisk text-danger" aria-hidden="true"/>
-      <input style={inputStyle} ref="input" className="form-control" id={this.props.field}  placeholder={this.props.placeholder} value={this.state.value} onChange={this.handleChange} />
-      </div>
+      var inputStyle = {
+        width: "calc(100% - 14px)",
+        display: "inline"
+      };
+      input = (
+        <div>
+        <span className="glyphicon glyphicon-asterisk text-danger" aria-hidden="true"/>
+        <input style={inputStyle} ref="input" className="form-control" id={this.props.field}  placeholder={this.props.placeholder} value={this.state.value} onChange={this.handleChange} />
+        </div>
       );
-
     } else {
-    input = (
-      <div>
-      <input ref="input" className="form-control" id={this.props.field}  placeholder={this.props.placeholder} value={this.state.value} onChange={this.handleChange} />
-      </div>
-      );
-    }
+      input = (
+        <div>
+        <input ref="input" className="form-control" id={this.props.field}  placeholder={this.props.placeholder} value={this.state.value} onChange={this.handleChange} />
+        </div>
+        );
+      }
 
-    // if (this.props.prefix) {
-    //   input = (
-    //     <div className="input-group">
-    //       <span className="input-group-addon">{ this.props.prefix }</span>
-    //       { input }
-    //     </div>
-    //   );
-    // }
-    return (
+        return (
       <fieldset className="form-group">
         <label htmlFor={this.props.field} >{this.props.label}</label>
         <span> ({this.props.engLabel})</span>
@@ -63,13 +57,27 @@ var SubmitButton = React.createClass({
   }
 });
 
+var pikadayI18N = {
+    previousMonth : 'חודש קודם',
+    nextMonth     : 'חודש הבא',
+    months        : ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'],
+    weekdays      : ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
+    weekdaysShort : ['א','ב','ג','ד','ה','ו','ש']
+};
+
+var yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
+
+
 var CalculatorForm = React.createClass({
   getInitialState: function() {
     return {waitingForServer: false};
   },
   handleSubmit: function(ev) {
     ev.preventDefault();
-    var saleDate = this.refs.saleDate.value() == "Today" ? new Date() : this.refs.saleDate.value();
+
+    var saleDate = this.refs.saleDate.value() == "אתמול" ? yesterday : this.saleDateValue;
+    this.props.data.saleDate = saleDate;
     var data = {
       ticker: this.refs.ticker.value(),
       grantDate: this.refs.grantDate.value(),
@@ -92,6 +100,24 @@ var CalculatorForm = React.createClass({
   onNumberOfSharesChange: function(newNumber) {
     this.props.updateNumberOfShares(newNumber);
   },
+  componentDidMount: function() {
+    var input = this.refs.saleDate;
+    var that = this;
+    var picker = new Pikaday({
+      field: input.getInputElement(),
+      isRTL: false,
+      i18n: pikadayI18N,
+      disableWeekends: true,
+      maxDate: yesterday,
+      position: "bottom right",
+      onSelect: function(date) {
+        input.setState({value: date.toDateString()});
+        that.saleDateValue = date 
+        console.log("Selected date ", date);
+      }   
+    });
+    input.getInputElement().setAttribute('isPikaday', true);
+  },
   render: function() {
     return (
       <form className="calc-form" onSubmit={this.handleSubmit}>
@@ -99,7 +125,7 @@ var CalculatorForm = React.createClass({
         <FieldClass mandatory="true" ref="grantDate" field="grant-date" engLabel="grant date" label="תאריך הענקת המניות" placeholder="2015/03/15" value={this.props.data.grantDate} />
         <FieldClass mandatory="true" ref="incomeTax" field="income-tax" engLabel="personal income tax rate" label="מס שולי" placeholder="30%" value={this.props.data.incomeTax}/>
         <FieldClass ref="numShares" field="number-of-shares" onChange={this.onNumberOfSharesChange} engLabel="number of shares for sale" label="מספר מניות למכירה" placeholder="100" value={this.props.data.numberOfStock}/>
-        <FieldClass ref="saleDate" field="sale-date" engLabel="sale date" label="תאריך מכירה" placeholder="100" value={this.props.data.saleDate}/>
+        <FieldClass ref="saleDate"  field="sale-date" engLabel="sale date" label="תאריך מכירה" placeholder="100" value={this.props.data.saleDate}/>
         <span className="glyphicon glyphicon-asterisk text-danger" aria-hidden="true"/> שדות חובה
         <br/>
         <br/>
@@ -108,7 +134,6 @@ var CalculatorForm = React.createClass({
     );
   }
 });
-
 
 var Result = React.createClass({
   getInitialState: function() {
@@ -156,7 +181,7 @@ var NonEligibleFor102Result = React.createClass({
           <div>
           <div className="alert alert-warning" role="alert">אינך זכאית עדיין להטבת מס 102. הזכאות תתקיים בעוד {this.props.result.daysUntileligibleFor102} ימים.</div>
           <div className="panel panel-default">
-            <div className="panel-heading">מחיר למניה היום</div>
+            <div className="panel-heading">מחיר למניה בתאריך הנבחר</div>
             <div className="panel-body">${shareValue}</div>
             <div className="panel-heading">הכנסה ממכירה (ללא הטבת מס 102)</div>
             <div className="panel-body">${totalGain}</div>
@@ -186,7 +211,7 @@ var EligibleFor102Result = React.createClass({
           <div>
           <div className="alert alert-success" role="alert">זכאית להטבת מס 102</div>
           <div className="panel panel-default">
-            <div className="panel-heading">מחיר למניה היום</div>
+            <div className="panel-heading">מחיר למניה בתאריך הנבחר</div>
             <div className="panel-body">${shareValue}</div>
             <div className="panel-heading">הכנסה ממכירה</div>
             <div className="panel-body">${totalGain}</div>
@@ -287,9 +312,8 @@ var initialData = {
   grantDate: "2013/03/15",
   incomeTax: 0.3,
   numberOfStock: 1,
-  saleDate: "Today"
+  saleDate: "אתמול"
 };
-window.debug = initialData;
 
 ReactDOM.render(
   <CalculatorContainer data={ initialData } />,
