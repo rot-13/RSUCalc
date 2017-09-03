@@ -4,11 +4,9 @@ This web page calculates the tax implications of selling RSUs belonging to peopl
 
 ## TODO
 
-1. mark obligatory & optional fields
-1. Find api for today's prices 
-1. Add loading spinner
 1. Better date entering fields
-
+1. Find api for current (today's) market prices (quandle only gives the closing prices)
+1. Handle erroneous response from Qundle (display a user-friendly message about the api usage) 
 
 ## Feedback from alpha
 
