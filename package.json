@@ -4,7 +4,8 @@
   "description": "This web page calculates the tax implications of selling RSUs belonging to people paying income tax in Israel.",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --inline",
+    "dev": "webpack -d",
+    "start": "webpack -d && webpack-dev-server --inline",
     "build": "NODE_ENV='production' webpack -p",
     "deploy": "gh-pages -d build",
     "test": "echo \"Error: no test specified\" && exit 1"

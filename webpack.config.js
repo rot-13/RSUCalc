@@ -5,11 +5,27 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
+const isProduction = process.env.NODE_ENV === 'production';
 const src = path.resolve(__dirname, 'src');
 const build = path.resolve(__dirname, 'build');
 const extractSass = new ExtractTextPlugin({
     filename: '[name].css'
 });
+const plugins = [
+    new HtmlWebpackPlugin({
+        template: path.resolve(__dirname, 'index.html')
+    }),
+    new CopyWebpackPlugin([
+        {
+            from: path.resolve(__dirname, 'images'),
+            to: 'images'
+        }
+    ]),
+    extractSass
+];
+if (isProduction) {
+    plugins.unshift(new CleanWebpackPlugin(['build']));
+}
 
 const config = {
     context: src,
@@ -46,25 +62,13 @@ const config = {
             }
         ]
     },
-    plugins: [
-        new CleanWebpackPlugin(['build']),
-        new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, 'index.html')
-        }),
-        new CopyWebpackPlugin([
-            {
-                from: path.resolve(__dirname, 'images'),
-                to: 'images'
-            }
-        ]),
-        extractSass
-    ],
+    plugins,
     devServer: {
         open: true,
         openPage: '',
         contentBase: build
     },
-    devtool: process.env.NODE_ENV === 'production' ? undefined : 'eval-source-map'
+    devtool: isProduction ? undefined : 'eval-source-map'
 }
 
 module.exports = config;
