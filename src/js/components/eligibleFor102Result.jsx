@@ -13,7 +13,7 @@ class EligibleFor102Result extends Component {
                 <div>
                     <div className="alert alert-success" role="alert">זכאית להטבת מס 102</div>
                     <div className="panel panel-default">
-                        <div className="panel-heading">מחיר למניה היום</div>
+                        <div className="panel-heading">מחיר למניה בתאריך הנבחר</div>
                         <div className="panel-body">${shareValue}</div>
                         <div className="panel-heading">הכנסה ממכירה</div>
                         <div className="panel-body">${totalGain}</div>

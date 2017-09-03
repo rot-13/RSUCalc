@@ -2,6 +2,18 @@ import React, {Component} from 'react';
 import Field from './field.jsx';
 import SubmitButton from './submitButton.jsx';
 import RSUTaxCalculator from './../rsuTaxCalc.js';
+import Pikaday from 'pikaday';
+
+var pikadayI18N = {
+    previousMonth : 'חודש קודם',
+    nextMonth     : 'חודש הבא',
+    months        : ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'],
+    weekdays      : ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
+    weekdaysShort : ['א','ב','ג','ד','ה','ו','ש']
+};
+
+var yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
 
 class CalculatorForm extends Component {
     
@@ -15,7 +27,8 @@ class CalculatorForm extends Component {
     
     handleSubmit(event) {
         event.preventDefault();
-        var saleDate = this.refs.saleDate.value == "Today" ? new Date() : this.refs.saleDate.value;
+        var saleDate = this.refs.saleDate.value == "אתמול" ? yesterday : this.saleDateValue;
+        this.props.data.saleDate = saleDate;        
         var data = {
             ticker: this.refs.ticker.value,
             grantDate: this.refs.grantDate.value,
@@ -38,6 +51,25 @@ class CalculatorForm extends Component {
     onNumberOfSharesChange(newNumber) {
         this.props.updateNumberOfShares(newNumber);
     }
+
+    componentDidMount() {
+        var input = this.refs.saleDate;
+        var that = this;
+        var picker = new Pikaday({
+        field: input.getInputElement(),
+        isRTL: false,
+        i18n: pikadayI18N,
+        disableWeekends: true,
+        maxDate: yesterday,
+        position: "bottom right",
+        onSelect: function(date) {
+            input.setState({value: date.toDateString()});
+            that.saleDateValue = date 
+            console.log("Selected date ", date);
+        }   
+        });
+        input.getInputElement().setAttribute('isPikaday', true);
+    }    
     
     render() {
         return (

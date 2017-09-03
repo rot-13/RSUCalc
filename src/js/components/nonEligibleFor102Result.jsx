@@ -16,7 +16,7 @@ class NonEligibleFor102Result extends Component {
                 <div>
                     <div className="alert alert-warning" role="alert">אינך זכאית עדיין להטבת מס 102. הזכאות תתקיים בעוד {this.props.result.daysUntileligibleFor102} ימים.</div>
                     <div className="panel panel-default">
-                        <div className="panel-heading">מחיר למניה היום</div>
+                        <div className="panel-heading">מחיר למניה בתאריך הנבחר</div>
                         <div className="panel-body">${shareValue}</div>
                         <div className="panel-heading">הכנסה ממכירה (ללא הטבת מס 102)</div>
                         <div className="panel-body">${totalGain}</div>

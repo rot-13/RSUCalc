@@ -14,6 +14,10 @@ class Field extends Component {
         return this.state.value;
     }
 
+    getInputElement() {
+        return this.refs.input;
+    }    
+
     handleChange(event) {
         this.setState({value: event.target.value});
         if (this.props.onChange) {
@@ -42,14 +46,6 @@ class Field extends Component {
             );
         }
 
-        // if (this.props.prefix) {
-        //   input = (
-        //     <div className="input-group">
-        //       <span className="input-group-addon">{ this.props.prefix }</span>
-        //       { input }
-        //     </div>
-        //   );
-        // }
         return (
         <fieldset className="form-group">
             <label htmlFor={this.props.field} >{this.props.label}</label>

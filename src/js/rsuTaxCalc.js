@@ -69,10 +69,9 @@ export default class RSUTaxCalculator {
             ticker: (String)
             grantDate: (String - for Date)
             marginalTaxRate: (int)
-            saleDate: (String - for Date)
+            saleDate: Date
         }
         callback: (function)
-            
     */
 	getGrantInfo(data, callback) {
         var ticker = data.ticker;
@@ -82,11 +81,10 @@ export default class RSUTaxCalculator {
         
         // add validity check? grant date is less than today
         grantDate = new Date(grantDate);
-        saleDate = new Date(saleDate);
         var millisecOneDay = 24*60*60*1000;
         var millisec45Days = 45*millisecOneDay; 
         var millisec7Days = 7*millisecOneDay;
-        var date45DyasBeforeGrant = new Date(grantDate.getTime() - millisec45Days);
+        var date45DaysBeforeGrant = new Date(grantDate.getTime() - millisec45Days);
         var today = saleDate;
         var lastWeek = new Date(today.getTime() - millisec7Days);
         var daysFromGrant = Math.floor((today.getTime() - grantDate.getTime())/millisecOneDay);
@@ -108,9 +106,9 @@ export default class RSUTaxCalculator {
             });
         }
 
-        const getCostBasisForGrantDate = (ticker, date45DyasBeforeGrant, grantDate) => {            
+        const getCostBasisForGrantDate = (ticker, date45DaysBeforeGrant, grantDate) => {            
             return new Promise((resolve, reject) => {
-                // special case for exceptions (pypl)
+                // special case for exceptions (pypl, ebay before the split)
                 for (var i = 0 ; i < stockExceptions.length; i++){
                     if (stockExceptions[i].ticker == ticker && stockExceptions[i].splitFrom) {
                         ticker = stockExceptions[i].splitFrom;
@@ -118,7 +116,7 @@ export default class RSUTaxCalculator {
                     }
                 }
 
-                this.getQuandlFinanceData(ticker, date45DyasBeforeGrant, grantDate, (err, result) => {
+                this.getQuandlFinanceData(ticker, date45DaysBeforeGrant, grantDate, (err, result) => {
                     if (err){
                         reject(new Error("Quandle error: " + err));
                         return;
@@ -139,7 +137,7 @@ export default class RSUTaxCalculator {
             });
         }
                  
-        var promiseCostBasis = getCostBasisForGrantDate(ticker, date45DyasBeforeGrant, grantDate);
+        var promiseCostBasis = getCostBasisForGrantDate(ticker, date45DaysBeforeGrant, grantDate);
         var promiseStockPrice = getStockPriceForDate(ticker, lastWeek, today);
         var promises = [promiseStockPrice, promiseCostBasis];
 

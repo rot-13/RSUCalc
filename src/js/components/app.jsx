@@ -6,9 +6,8 @@ var initialData = {
   grantDate: "2013/03/15",
   incomeTax: 0.3,
   numberOfStock: 1,
-  saleDate: "Today"
+  saleDate: "אתמול"
 };
-window.debug = initialData;
 
 class App extends Component {
   render() {
