@@ -2,6 +2,16 @@
 
 This web page calculates the tax implications of selling RSUs belonging to people paying income tax in Israel.
 
+## Setting Up
+1. Install [Homebrew](https://brew.sh/).
+2. Install NodeJS through hombrew by running `brew install node`.
+3. Navigate to the project directory.
+4. Install dependencies by running `npm install`
+5. Use the following commands to work with the project:
+    * `npm run start` - starts up a dev server that will compile with every change to the code.
+    * `npm run build` - will build the project in production mode (run this before `npm run deploy`). This will create a build directory in your project.
+    * `npm run deploy` - will deploy the build directory to gh-pages.
+
 ## TODO
 
 1. mark obligatory & optional fields
