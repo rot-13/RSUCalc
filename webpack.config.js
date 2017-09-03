@@ -2,13 +2,17 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const src = path.resolve(__dirname, 'src');
-const build = path.resolve(__dirname, 'build')
+const build = path.resolve(__dirname, 'build');
+const extractSass = new ExtractTextPlugin({
+    filename: '[name].css'
+});
 
 const config = {
     context: src,
-    entry: './js/index.js',
+    entry: ['./js/index.js', './scss/style.scss'],
     output: {
         path: build,
         filename: 'bundle.js',
@@ -24,6 +28,20 @@ const config = {
                         loader: 'babel-loader'
                     }
                 ]
+            },
+            {
+                test: /\.scss$/,
+                use: extractSass.extract({
+                    use: [ {loader: 'css-loader'}, {loader: 'sass-loader'} ]
+                })
+            },
+            {
+                test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    outputPath: 'images/'
+                }
             }
         ]
     },
@@ -36,7 +54,8 @@ const config = {
                 from: path.resolve(__dirname, 'images'),
                 to: 'images'
             }
-        ])
+        ]),
+        extractSass
     ],
     devServer: {
         open: true,
