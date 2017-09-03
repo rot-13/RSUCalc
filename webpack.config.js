@@ -4,12 +4,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const src = path.resolve(__dirname, 'src');
+const build = path.resolve(__dirname, 'build')
 
 const config = {
     context: src,
     entry: './js/index.js',
     output: {
-        path: path.resolve(__dirname, 'build'),
+        path: build,
         filename: 'bundle.js',
         publicPath: '/RSUCalc/'
     },
@@ -40,7 +41,7 @@ const config = {
     devServer: {
         open: true,
         openPage: '',
-        contentBase: src
+        contentBase: build
     },
     devtool: process.env.NODE_ENV === 'production' ? undefined : 'eval-source-map'
 }
