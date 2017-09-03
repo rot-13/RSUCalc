@@ -32,8 +32,7 @@ const config = {
     entry: ['./js/index.js', './scss/style.scss'],
     output: {
         path: build,
-        filename: 'bundle.js',
-        publicPath: '/RSUCalc/'
+        filename: 'bundle.js'
     },
     module: {
         rules: [
