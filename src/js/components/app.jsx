@@ -3,7 +3,7 @@ import CalculatorContainer from './calculatorContainer.jsx';
 
 var initialData = {
   ticker: "pypl",
-  grantDate: "2013/03/15",
+  grantDate: "Mar 15 2015",
   incomeTax: 0.3,
   numberOfStock: 1,
   saleDate: "אתמול"

@@ -12,8 +12,27 @@ var pikadayI18N = {
     weekdaysShort : ['א','ב','ג','ד','ה','ו','ש']
 };
 
+function createDateField(inputComponent, defaultDate, callback) {
+    return new Pikaday({
+            field: inputComponent.getInputElement(),
+            isRTL: false,
+            i18n: pikadayI18N,
+            disableWeekends: true,
+            defaultDate: defaultDate,
+            maxDate: yesterday,
+            position: "bottom right",
+            onSelect: function(date) {
+                inputComponent.setState({value: date.toDateString()});
+                callback(date)
+                console.log("Selected date ", date);
+            }   
+        });
+}
+
 var yesterday = new Date();
 yesterday.setDate(yesterday.getDate() - 1);
+
+var defaultGrantDate = new Date("Mar 15 2015");
 
 class CalculatorForm extends Component {
     
@@ -28,10 +47,11 @@ class CalculatorForm extends Component {
     handleSubmit(event) {
         event.preventDefault();
         var saleDate = this.refs.saleDate.value == "אתמול" ? yesterday : this.saleDateValue;
+        var grantDate = typeof this.grantDateValue != "undefined" ? this.grantDateValue : defaultGrantDate
         this.props.data.saleDate = saleDate;        
         var data = {
             ticker: this.refs.ticker.value,
-            grantDate: this.refs.grantDate.value,
+            grantDate: grantDate,
             marginalTaxRate: this.refs.incomeTax.value,
             saleDate: saleDate,
             numberOfShares: this.refs.numShares.value,
@@ -53,22 +73,17 @@ class CalculatorForm extends Component {
     }
 
     componentDidMount() {
-        var input = this.refs.saleDate;
+        var saleDateComponent = this.refs.saleDate;
+        var grantDateComponent = this.refs.grantDate;
         var that = this;
-        var picker = new Pikaday({
-        field: input.getInputElement(),
-        isRTL: false,
-        i18n: pikadayI18N,
-        disableWeekends: true,
-        maxDate: yesterday,
-        position: "bottom right",
-        onSelect: function(date) {
-            input.setState({value: date.toDateString()});
-            that.saleDateValue = date 
-            console.log("Selected date ", date);
-        }   
-        });
-        input.getInputElement().setAttribute('isPikaday', true);
+        createDateField(saleDateComponent, yesterday, (date) => {
+            that.saleDateValue = date;
+        })
+        createDateField(grantDateComponent, defaultGrantDate, (date) => {
+            that.grantDateValue = date;
+        })
+
+        saleDateComponent.getInputElement().setAttribute('isPikaday', true);
     }    
     
     render() {

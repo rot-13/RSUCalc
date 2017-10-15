@@ -59,8 +59,8 @@ export default class RSUTaxCalculator {
                 const data = json.dataset_data.data;
                 callback(null, data)
             }).catch((err) => {
-                    callback(err);
-                })
+                callback(err);
+            })
         })
 	}
    
@@ -80,7 +80,6 @@ export default class RSUTaxCalculator {
         var saleDate = data.saleDate;
         
         // add validity check? grant date is less than today
-        grantDate = new Date(grantDate);
         var millisecOneDay = 24*60*60*1000;
         var millisec45Days = 45*millisecOneDay; 
         var millisec7Days = 7*millisecOneDay;
@@ -110,7 +109,9 @@ export default class RSUTaxCalculator {
             return new Promise((resolve, reject) => {
                 // special case for exceptions (pypl, ebay before the split)
                 for (var i = 0 ; i < stockExceptions.length; i++){
-                    if (stockExceptions[i].ticker == ticker && stockExceptions[i].splitFrom) {
+                    if (stockExceptions[i].ticker == ticker && 
+                        grantDate.getTime() < stockExceptions[i].date.getTime() && 
+                        stockExceptions[i].splitFrom) {
                         ticker = stockExceptions[i].splitFrom;
                         break;            
                     }
@@ -141,10 +142,10 @@ export default class RSUTaxCalculator {
         var promiseStockPrice = getStockPriceForDate(ticker, lastWeek, today);
         var promises = [promiseStockPrice, promiseCostBasis];
 
-        const computeGain = (lastPrice, costBasis) => {
+        const computeGain = (lastPrice, costBasis, grantDate) => {
             // special case for exceptions (ebay, pypl)
             for (var i = 0 ; i < stockExceptions.length; i++){
-                if ((stockExceptions[i].ticker == ticker) && (today.getTime() > stockExceptions[i].date.getTime())) {
+                if ((stockExceptions[i].ticker == ticker) && (grantDate.getTime() < stockExceptions[i].date.getTime())) {
                     costBasis = costBasis * stockExceptions[i].relativeMultiplyer;
                     break;            
                 }
@@ -190,10 +191,10 @@ export default class RSUTaxCalculator {
             }); 
         }
         
-        Promise.all(promises).then(function (values) {
+        Promise.all(promises).then( (values) => {
             var lastPrice = values[0];
             var costBasis = values[1];
-            computeGain(lastPrice, costBasis);             
+            computeGain(lastPrice, costBasis, grantDate);             
         }, function(error){
             callback(error)
         });

@@ -14,7 +14,7 @@ class NonEligibleFor102Result extends Component {
 
             var good = (
                 <div>
-                    <div className="alert alert-warning" role="alert">אינך זכאית עדיין להטבת מס 102. הזכאות תתקיים בעוד {this.props.result.daysUntileligibleFor102} ימים.</div>
+                    <div className="alert alert-warning" role="alert">אינך זכאית עדיין להטבת מס 102. הזכאות תתקיים  {this.props.result.daysUntileligibleFor102} ימים לאחר מועד המכירה הנבחר.</div>
                     <div className="panel panel-default">
                         <div className="panel-heading">מחיר למניה בתאריך הנבחר</div>
                         <div className="panel-body">${shareValue}</div>
